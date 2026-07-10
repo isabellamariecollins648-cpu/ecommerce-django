@@ -1,0 +1,64 @@
+{% extends 'ecom/customer_base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+
+</head>
+<script src="https://js.paystack.co/v2/inline.js"></script>
+<style media="screen">
+
+.panel-title {display: inline;font-weight: bold;}
+.checkbox.pull-right { margin: 0; }
+.pl-ziro { padding-left: 0px; }
+</style>
+<br><br>
+<center><i>Secure payment powered by Paystack &mdash; Cards, MTN MoMo, Vodafone Cash &amp; AirtelTigo Money accepted</i></center>
+<br><br>
+<div class="container" style="text-align:center; padding-left:300px;">
+    <div class="row">
+        <div class="col-xs-12 col-md-4" style="height:auto; width:600px;">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Payment Details
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <p>You'll be asked to choose Card or Mobile Money on the next screen.</p>
+                </div>
+            </div>
+            <ul class="nav nav-pills nav-stacked">
+                <li class="active"><a href="#"><span class="badge pull-right">GH&#8373; {{total}}</span> Final Payment</a>
+                </li>
+            </ul>
+            <br/>
+            <button id="payButton" class="btn btn-success btn-lg btn-block">Pay Now</button>
+            <div id="paystackError" style="color:red; margin-top:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('payButton').addEventListener('click', function (e) {
+    e.preventDefault();
+
+    var handler = PaystackPop.setup({
+        key: '{{ paystack_public_key }}',
+        email: '{{ email }}',
+        amount: {{ amount_pesewas }},   // amount in pesewas (GHS * 100)
+        currency: 'GHS',
+        ref: '{{ paystack_ref }}',
+        callback: function (response) {
+            // Payment popup says success. We still verify server-side before creating the order.
+            window.location.href = '/payment-success?reference=' + response.reference;
+        },
+        onClose: function () {
+            document.getElementById('paystackError').innerText = 'Payment window closed. Your order was not placed.';
+        }
+    });
+    handler.openIframe();
+});
+</script>
+
+{% endblock content %}
